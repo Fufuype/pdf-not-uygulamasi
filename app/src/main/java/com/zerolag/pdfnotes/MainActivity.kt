@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import java.io.File
@@ -47,11 +46,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ZeroLagAppUI() {
         var currentMode by remember { mutableStateOf(ToolMode.PEN) }
-        var pdfLoaded by remember { mutableStateOf(false) }
 
         Box(modifier = Modifier.fillMaxSize().background(Color.DarkGray)) {
             
-            // Native Canvas View
             AndroidView(
                 factory = { context ->
                     DrawingCanvasView(context).also { drawingCanvasView = it }
@@ -59,7 +56,6 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Floating Minimalist Toolbar
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -75,7 +71,7 @@ class MainActivity : ComponentActivity() {
                     openPdfLauncher.launch(arrayOf("application/pdf"))
                 }
                 
-                Divider(modifier = Modifier.height(24.dp).width(1.dp), color = Color.Gray)
+                VerticalDivider(modifier = Modifier.height(24.dp).width(1.dp), color = Color.Gray)
 
                 ToolbarButton("Pen", if (currentMode == ToolMode.PEN) Color.Cyan else Color.White) {
                     currentMode = ToolMode.PEN
@@ -96,12 +92,12 @@ class MainActivity : ComponentActivity() {
                     drawingCanvasView?.currentMode = ToolMode.LASSO
                 }
 
-                Divider(modifier = Modifier.height(24.dp).width(1.dp), color = Color.Gray)
+                VerticalDivider(modifier = Modifier.height(24.dp).width(1.dp), color = Color.Gray)
 
                 ToolbarButton("Undo", Color.White) { drawingCanvasView?.undo() }
                 ToolbarButton("Redo", Color.White) { drawingCanvasView?.redo() }
                 
-                Divider(modifier = Modifier.height(24.dp).width(1.dp), color = Color.Gray)
+                VerticalDivider(modifier = Modifier.height(24.dp).width(1.dp), color = Color.Gray)
 
                 ToolbarButton("Export", Color.Green) { exportPdf() }
             }
@@ -118,7 +114,6 @@ class MainActivity : ComponentActivity() {
     private fun loadPdf(uri: Uri) {
         val pageCount = pdfEngine.openPdf(uri)
         if (pageCount > 0) {
-            // Render first page for simplicity in this single-page demo
             drawingCanvasView?.post {
                 val width = drawingCanvasView?.width ?: 1080
                 val height = drawingCanvasView?.height ?: 1920
