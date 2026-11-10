@@ -19,9 +19,9 @@ class PdfRenderEngine(private val context: Context) {
     fun openPdf(uri: Uri): Int {
         close()
         fileDescriptor = context.contentResolver.openFileDescriptor(uri, "r") ?: return 0
-        pdfRenderer = PdfRenderer(fileDescriptor!!).apply {
-            pageCount = this.pageCount
-        }
+        val renderer = PdfRenderer(fileDescriptor!!)
+        pdfRenderer = renderer
+        pageCount = renderer.pageCount
         return pageCount
     }
 
@@ -31,23 +31,22 @@ class PdfRenderEngine(private val context: Context) {
         currentPage?.close()
         currentPage = pdfRenderer?.openPage(pageIndex)
 
-        // Use ARGB_8888 for high quality, hardware-accelerated rendering
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.WHITE) // PDF backgrounds are transparent by default
+        canvas.drawColor(Color.WHITE)
 
         currentPage?.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         return bitmap
     }
 
     fun exportAnnotatedPdf(originalBitmap: Bitmap, annotatedBitmap: Bitmap, outputFile: File) {
-        // In a full implementation, this would write back to a PDF structure.
-        // For ultra-lightweight offline constraints, we export the flattened page as a high-res PNG.
-        val outCanvas = Canvas(originalBitmap)
+        val resultBitmap = Bitmap.createBitmap(originalBitmap.width, originalBitmap.height, Bitmap.Config.ARGB_8888)
+        val outCanvas = Canvas(resultBitmap)
+        outCanvas.drawBitmap(originalBitmap, 0f, 0f, null)
         outCanvas.drawBitmap(annotatedBitmap, 0f, 0f, null)
         
         FileOutputStream(outputFile).use { out ->
-            originalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            resultBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
     }
 
