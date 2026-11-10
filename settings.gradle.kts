@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "PDFNoteApp"
+rootProject.name = "ZeroLagPDF"
 include(":app")
